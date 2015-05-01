@@ -6,18 +6,23 @@ var splat = new Audio('sounds/collide1.mp3');
 
 var Hero = function() {
   // start position
-  this.x = 200;
-  this.y = -15;
+    this.x = 200;
+    this.y = -15;
   // Movement
-  this.top = function() {return this.y + 84;};
-  this.right = function() {return this.x + 84;};
-  this.bottom = function() {return this.y + 138;};
-  this.left = function() {return this.x + 17;};
-  this.sprite = 'images/char-horn-girl.png';
-  bugbait = false;
+    this.top = function() {return this.y + 84;};
+    this.right = function() {return this.x + 84;};
+    this.bottom = function() {return this.y + 138;};
+    this.left = function() {return this.x + 17;};
+    this.sprite = 'images/char-horn-girl.png';
 };
 
-var Enemy = function(v, row) {
+Hero.prototype.restart = function() {
+    this.x = 200;
+	this.y = -15;
+	splat.play();
+};
+
+var Enemy = function(speed, row) {
     // eRow=Enemy Rows 
     this.eRow = [60, 140, 220, 300];
     this.x = -300;
@@ -32,7 +37,7 @@ var Enemy = function(v, row) {
     this.left = function() {return this.x + 5;};
     this.sprite = 'images/enemy-bug.png';
     //Enemy Speed
-	this.speed = v;
+	this.speed = speed;
 };
 
 Enemy.prototype.update = function(dt) {
@@ -49,7 +54,7 @@ Enemy.prototype.update = function(dt) {
     };
 	// collision using hero's location
 	    if(!(this.top() > hero.bottom() || this.left() > hero.right() || this.bottom() < hero.top() || this.right() < hero.left())) {
-      hero.bugbait = true;
+      hero.restart();
     };
 };
 
@@ -59,9 +64,9 @@ Enemy.prototype.render = function() {
 
 Hero.prototype.handleInput = function(dirInput) {
   // move hero & define game board
-  switch(dirInput) {
+    switch(dirInput) {
     case 'left':
-      if(this.x > 0) {this.x = this.x - 100;}
+        if(this.x > 0) {this.x = this.x - 100;}
 	  break;
 	case 'up':
       if(this.y > 0) {this.y = this.y - 84;}
@@ -79,28 +84,21 @@ Hero.prototype.handleInput = function(dirInput) {
 Hero.prototype.update = function () {};
 
 Hero.prototype.render = function() {
-   //hero collision reset & sound trigger
-   if(this.bugbait) {
-    this.x = 200;
-    this.y = -15;
-    this.bugbait = false;
-	splat.play();
-  };
-  ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+	ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
 var allEnemies = (function (numEnemies) {
-  var myArray = [];
-  // create enemy objects
-  for (var i = 0; i < numEnemies; i++) {
-    var myV = 0;
+    var myArray = [];
+    // create enemy objects
+    for (var i = 0; i < numEnemies; i++) {
+      var myVelocity = 0;
     //  random speed
-    while (myV < 50) {
-      var myV = Math.round(Math.random() * 100);
+      while (myVelocity < 50) {
+        var myVelocity = Math.round(Math.random() * 100);
+      }
+      myArray.push(new Enemy(myVelocity, i));
     }
-    myArray.push(new Enemy(myV, i));
-  }
-  return myArray;
+    return myArray;
 //number of enemies on screen
 })(8);
 
